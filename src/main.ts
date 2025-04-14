@@ -5,7 +5,7 @@ import { fetchReviews, fetchTopRated, searchReviews } from './apiClient.js';
 
 const server = new McpServer({
   name: 'AsyncPraiseRebuke',
-  version: '1.0.3',
+  version: '1.0.6',
 });
 
 // Tool: List public reviews
@@ -15,7 +15,15 @@ server.tool(
   {},
   async () => {
     const data = await fetchReviews();
-    return { content: [{ type: 'resource', resource: { text: JSON.stringify(data), uri: '', mimeType: 'application/json' } }] };
+    return {
+      content: [
+        {
+          type: 'json',
+          mimeType: 'application/json',
+          json: data,
+        },
+      ],
+    } as any;
   },
 );
 
@@ -26,7 +34,15 @@ server.tool(
   {},
   async () => {
     const data = await fetchTopRated();
-    return { content: [{ type: 'resource', resource: { text: JSON.stringify(data), uri: '', mimeType: 'application/json' } }] };
+    return {
+      content: [
+        {
+          type: 'json',
+          mimeType: 'application/json',
+          json: data,
+        },
+      ],
+    } as any;
   },
 );
 
@@ -39,7 +55,15 @@ server.tool(
   },
   async ({ place }) => {
     const data = await searchReviews(place);
-    return { content: [{ type: 'json', json: data }] };
+    return {
+      content: [
+        {
+          type: 'json',
+          mimeType: 'application/json',
+          json: data,
+        },
+      ],
+    } as any;
   },
 );
 
