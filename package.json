@@ -11,7 +11,8 @@
     },
     "files": [
         "build",
-        "reviews.openapi.json"
+        "reviews.openapi.json",
+        "business.openapi.json"
     ],
     "repository": {
         "type": "git",

@@ -1,0 +1,99 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+      "title": "Business Directory API",
+      "version": "1.0.0",
+      "description": "Handles lookup and submission of business contact info, such as email addresses discovered by agents or users."
+    },
+    "paths": {
+      "/business/search": {
+        "post": {
+          "summary": "Search business directory for a match",
+          "operationId": "searchBusinessDirectory",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string" }
+                  },
+                  "required": ["name"]
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Matching business directory entries",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": { "$ref": "#/components/schemas/BusinessDirectoryEntry" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/business/log": {
+        "post": {
+          "summary": "Submit a business email for verification",
+          "operationId": "logBusinessEmail",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessDirectorySubmission"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Acknowledgment of email submission",
+              "content": {
+                "application/json": {
+                  "schema": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "BusinessDirectoryEntry": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "string" },
+            "establishmentName": { "type": "string" },
+            "storeNumber": { "type": "string" },
+            "email": { "type": "string", "format": "email" },
+            "source": { "type": "string", "enum": ["WebSearchAgent", "UserSubmission"] },
+            "validated": { "type": "boolean" },
+            "submittedAt": { "type": "string", "format": "date-time" },
+            "address": { "type": "string" },
+            "phone": { "type": "string" },
+            "submittedBy": { "type": "string" }
+          }
+        },
+        "BusinessDirectorySubmission": {
+          "type": "object",
+          "properties": {
+            "establishmentName": { "type": "string" },
+            "email": { "type": "string", "format": "email" },
+            "address": { "type": "string" },
+            "phone": { "type": "string" }
+          },
+          "required": ["establishmentName", "email", "address", "phone"]
+        }
+      }
+    }
+  }
+  
