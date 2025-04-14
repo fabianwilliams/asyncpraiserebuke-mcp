@@ -1,0 +1,35 @@
+{
+    "name": "@fabianwilliams/asyncpraiserebuke-mcp",
+    "version": "1.0.1",
+    "description": "MCP tool for accessing Async Praise/Rebuke public feedback APIs",
+    "author": "Fabian G. Williams <fabian@adotob.com>",
+    "license": "MIT",
+    "main": "build/main.js",
+    "type": "module",
+    "bin": {
+      "asyncpraiserebuke-mcp": "build/main.js"
+    },
+    "files": ["build", "reviews.openapi.json"],
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/fabianwilliams/asyncpraiserebuke-mcp.git"
+    },
+    "scripts": {
+      "build": "tsc",
+      "postbuild": "chmod +x build/main.js",
+      "prepare": "npm run build",
+      "clean": "rm -rf build *.tsbuildinfo"
+    },
+    "dependencies": {
+      "@modelcontextprotocol/sdk": "^1.7.0",
+      "dotenv": "^16.4.5",
+      "axios": "^1.6.7",
+      "zod": "^3.24.2"
+    },
+    "devDependencies": {
+      "@types/node": "^22.13.11",
+      "typescript": "^5.8.2",
+      "prettier": "^3.5.3"
+    }
+  }
+  

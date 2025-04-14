@@ -1,0 +1,107 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+      "title": "Public Review Insights API",
+      "version": "1.0.0",
+      "description": "Returns anonymized review data and trends for business establishments."
+    },
+    "paths": {
+      "/reviews": {
+        "post": {
+          "summary": "List all public reviews",
+          "operationId": "listPublicReviews",
+          "responses": {
+            "200": {
+              "description": "A list of recent feedback",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": { "$ref": "#/components/schemas/PublicFeedback" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/reviews/search": {
+        "post": {
+          "summary": "Search reviews by place name",
+          "operationId": "searchReviews",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "place": { "type": "string" }
+                  },
+                  "required": ["place"]
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Filtered reviews for a location",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": { "$ref": "#/components/schemas/PublicFeedback" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/reviews/top": {
+        "post": {
+          "summary": "Get mood-based review trends for establishments",
+          "operationId": "getTopRatedLocations",
+          "responses": {
+            "200": {
+              "description": "List of top rated and least rated establishments",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "establishment": { "type": "string" },
+                        "moodStats": {
+                          "type": "object",
+                          "additionalProperties": { "type": "integer" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "PublicFeedback": {
+          "type": "object",
+          "properties": {
+            "establishmentName": { "type": "string" },
+            "address": { "type": "string" },
+            "receiptDate": { "type": "string", "format": "date" },
+            "mood": { "type": "string", "enum": ["Great", "Okay", "Bad"] },
+            "narrative": { "type": "string" },
+            "total": { "type": "number", "format": "double" }
+          },
+          "required": ["establishmentName", "mood", "total"]
+        }
+      }
+    }
+  }
+  
