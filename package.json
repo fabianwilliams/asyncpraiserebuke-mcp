@@ -1,6 +1,6 @@
 {
     "name": "@fabianwilliams/asyncpraiserebuke-mcp",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "description": "MCP tool for accessing Async Praise/Rebuke public feedback APIs",
     "author": "Fabian G. Williams <fabian@adotob.com>",
     "license": "MIT",
