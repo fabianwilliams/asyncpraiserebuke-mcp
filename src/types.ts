@@ -12,3 +12,16 @@ export interface PublicFeedback {
     moodStats: Record<string, number>;
   }
   
+  export interface BusinessDirectoryEntry {
+    id: string;
+    establishmentName: string;
+    storeNumber?: string;
+    email: string;
+    source: 'WebSearchAgent' | 'UserSubmission';
+    validated: boolean;
+    submittedAt: string;
+    address?: string;
+    phone?: string;
+    submittedBy?: string;
+  }
+  
