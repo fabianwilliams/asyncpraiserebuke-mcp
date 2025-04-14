@@ -1,37 +1,48 @@
-#!/usr/bin/env node
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-// @ts-expect-error: Temporary until types are available for this module
-import { registerOpenApiTool } from '@modelcontextprotocol/sdk';
-
-
-import fs from 'fs';
-import dotenv from 'dotenv';
-dotenv.config();
+import { z } from 'zod';
+import { fetchReviews, fetchTopRated, searchReviews } from './apiClient.js';
 
 const server = new McpServer({
-  name: 'PublicReviewsMCP',
-  version: '1.0.0',
-  description: 'MCP tools for accessing public review data and trends',
+  name: 'AsyncPraiseRebuke',
+  version: '1.0.3',
 });
 
-await registerOpenApiTool({
-  name: 'reviewsApi',
-  server,
-  manifest: JSON.parse(fs.readFileSync('./reviews.openapi.json', 'utf-8')),
-  proxy: {
-    baseUrl: process.env.REVIEW_API_BASE_URL!,
-    rewriteRequest: (req: any) => {
-      req.headers['X-API-Key'] = process.env.REVIEW_API_KEY!;
-      return req;
-    },
-    methodMappings: {
-      listPublicReviews: 'post',
-      getTopRatedLocations: 'post',
-      searchReviews: 'post'
-    }
-  }
-});
+// Tool: List public reviews
+server.tool(
+  'listPublicReviews',
+  'Get all available public feedback reviews',
+  {},
+  async () => {
+    const data = await fetchReviews();
+    return { content: [{ type: 'resource', resource: { text: JSON.stringify(data), uri: '', mimeType: 'application/json' } }] };
+  },
+);
 
+// Tool: Get top rated
+server.tool(
+  'getTopRatedLocations',
+  'Return top and lowest rated feedback locations',
+  {},
+  async () => {
+    const data = await fetchTopRated();
+    return { content: [{ type: 'resource', resource: { text: JSON.stringify(data), uri: '', mimeType: 'application/json' } }] };
+  },
+);
+
+// Tool: Search by place name
+server.tool(
+  'searchReviews',
+  'Search for reviews by partial or full business name',
+  {
+    place: z.string().describe('Business name to search for'),
+  },
+  async ({ place }) => {
+    const data = await searchReviews(place);
+    return { content: [{ type: 'json', json: data }] };
+  },
+);
+
+// Boot MCP server
 const transport = new StdioServerTransport();
 await server.connect(transport);
