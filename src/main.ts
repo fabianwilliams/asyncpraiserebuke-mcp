@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
@@ -8,7 +10,7 @@ const server = new McpServer({
   version: '1.0.6',
 });
 
-// Tool: List public reviews
+// Tool 1: List public reviews
 server.tool(
   'listPublicReviews',
   'Get all available public feedback reviews',
@@ -18,16 +20,15 @@ server.tool(
     return {
       content: [
         {
-          type: 'json',
-          mimeType: 'application/json',
-          json: data,
+          type: 'text',
+          text: JSON.stringify(data, null, 2),
         },
       ],
-    } as any;
+    };
   },
 );
 
-// Tool: Get top rated
+// Tool 2: Top rated/lowest rated
 server.tool(
   'getTopRatedLocations',
   'Return top and lowest rated feedback locations',
@@ -37,16 +38,15 @@ server.tool(
     return {
       content: [
         {
-          type: 'json',
-          mimeType: 'application/json',
-          json: data,
+          type: 'text',
+          text: JSON.stringify(data, null, 2),
         },
       ],
-    } as any;
+    };
   },
 );
 
-// Tool: Search by place name
+// Tool 3: Search by name
 server.tool(
   'searchReviews',
   'Search for reviews by partial or full business name',
@@ -58,15 +58,21 @@ server.tool(
     return {
       content: [
         {
-          type: 'json',
-          mimeType: 'application/json',
-          json: data,
+          type: 'text',
+          text: JSON.stringify(data, null, 2),
         },
       ],
-    } as any;
+    };
   },
 );
 
-// Boot MCP server
-const transport = new StdioServerTransport();
-await server.connect(transport);
+// MCP bootstrap
+async function main() {
+  const transport = new StdioServerTransport();
+  await server.connect(transport);
+}
+
+main().catch((err) => {
+  console.error('Fatal error starting AsyncPraiseRebuke MCP server:', err);
+  process.exit(1);
+});
