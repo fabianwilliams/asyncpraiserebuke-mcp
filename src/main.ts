@@ -3,6 +3,9 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
+import { spawnSync } from 'child_process';
+
+
 import {
   fetchReviews,
   fetchTopRated,
@@ -115,6 +118,86 @@ server.tool(
     };
   }
 );
+
+// Tool 6: Agent discovery and logging of business emails
+// This tool uses ClicknContact to discover business emails and logs them to the directory
+server.tool(
+  'discoverAndLogBusinessEmail',
+  'Discover contact emails via ClicknContact and log new entries to the directory',
+  {
+    websiteUrls: z.array(z.string()).describe("List of business website URLs to scan"),
+  },
+  async ({ websiteUrls }) => {
+    const inputJson = JSON.stringify({ websiteUrls });
+
+    console.log('📡 Invoking ClicknContact to discover business emails...');
+
+    const result = spawnSync('npx', ['-y', '@fabianwilliams/clickncontact'], {
+      input: inputJson,
+      encoding: 'utf-8',
+      shell: true,
+    });
+
+    if (result.error) {
+      return {
+        content: [
+          { type: 'text', text: `❌ Error invoking ClicknContact: ${result.error.message}` },
+        ],
+      };
+    }
+
+    const raw = result.stdout;
+    let discovered = [];
+
+    try {
+      discovered = JSON.parse(raw);
+    } catch (e) {
+      return {
+        content: [
+          { type: 'text', text: `❌ Failed to parse ClicknContact output.\n\nRaw:\n${raw}` },
+        ],
+      };
+    }
+
+    const results = [];
+
+    for (const item of discovered) {
+      const email = item.best?.toLowerCase();
+      const url = item.url;
+
+      if (!email) {
+        results.push({ url, status: 'No valid email discovered' });
+        continue;
+      }
+
+      const exists = await searchBusinessDirectory(url);
+      const match = exists?.find(e => e.email?.toLowerCase() === email);
+
+      if (match) {
+        results.push({ url, email, status: 'Already logged' });
+      } else {
+        const logResult = await logBusinessEmail({
+          establishmentName: url,
+          email,
+          address: 'Unknown',
+          phone: 'Unknown',
+        });
+
+        results.push({ url, email, status: 'Logged', logResult });
+      }
+    }
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(results, null, 2),
+        },
+      ],
+    };
+  }
+);
+
 
 // MCP bootstrap
 async function main() {
